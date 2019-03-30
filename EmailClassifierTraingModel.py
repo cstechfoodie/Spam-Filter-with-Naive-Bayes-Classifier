@@ -73,7 +73,7 @@ def generate_model_file(file_name):
     f.close()
 
 
-# script start from here
+# script starts from here
 file_names = read_file_names_in_directory()
 for file in file_names:
     if str(file).startswith("training-ham"):
