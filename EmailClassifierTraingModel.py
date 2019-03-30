@@ -5,6 +5,7 @@ file_names = []  # training file names read from the give directory
 ham_count = 0  # number of ham email
 spam_count = 0  # number of spam email
 
+# all tokens we found in both ham and spam emails. its length is NOT the total of (ham_tokens_count + spam_token_count_dict).
 all_tokens = []
 ham_tokens_count = 0  # total tokens count in ham
 ham_token_count_dict = {}  # each token with its count in ham
@@ -17,10 +18,17 @@ training_set_directory = "train/"
 test_set_directory = "test/"
 generated_model_file = "model.txt"
 
+'''
+Read all file names given the directory name, we need their names to identify whether it is a ham or spam
+Here is where we save all traing files
+'''
+
 
 def read_file_names_in_directory():
     training_set_directory
     return os.listdir(training_set_directory)
+
+# training with a single file. need to save all info to their persistences
 
 
 def training_with_one_email(file_path, tokens_count, token_count_dict, token_prob_dict):
@@ -37,6 +45,8 @@ def training_with_one_email(file_path, tokens_count, token_count_dict, token_pro
                 token_count_dict[token] = 1
             if token not in all_tokens:
                 all_tokens = all_tokens.append(token)
+
+# smooth with 0.5 - assume each token will at least show 0.5 time
 
 
 def calculate_probabilities():
