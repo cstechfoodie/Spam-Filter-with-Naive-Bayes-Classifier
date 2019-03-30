@@ -33,18 +33,17 @@ def read_file_names_in_directory():
 
 def training_with_one_email(file_path, tokens_count, token_count_dict, token_prob_dict):
     global all_tokens
-    f = open(training_set_directory + "train-ham-00001.txt",
+    f = open(training_set_directory + file_path,
              "r", encoding="iso8859_2")
     lines = f.read().splitlines()
-    # print(lines)
     for line in lines:
-        # print(line)
         token_list = re.split("[^a-zA-Z]", line)
         tokens_count = len(token_list) + tokens_count
-        # print(token_list)
         for token in token_list:
-            if not token:
+            if token.strip():
                 token = str(token).lower()
+            else:
+                continue
             if token in token_count_dict:
                 token_count_dict[token] = token_count_dict[token] + 1
             else:
@@ -93,12 +92,12 @@ def generate_model_file(file_name):
 file_names = read_file_names_in_directory()
 for file in file_names:
     if str(file).startswith("train-ham"):
-        print(file + "I am a ham")
+        print("Currently Training with file: " + file)
         ham_count = ham_count + 1
         training_with_one_email(file, ham_tokens_count,
                                 ham_token_count_dict, ham_token_prob_dict)
     else:
-        print(file + "I am a spam")
+        print("Currently Training with file: " + file)
         spam_count = spam_count + 1
         training_with_one_email(file, spam_tokens_count,
                                 spam_token_count_dict, spam_token_prob_dict)
