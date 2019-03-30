@@ -54,13 +54,21 @@ def generate_model_file(file_name):
     f = open(file_name, "w")
     line_counter = 1
     for token in sorted(all_tokens):
-        token_count_in_ham = str(ham_token_count_dict[token])
-        toekn_prob_in_ham = str(ham_token_prob_dict[token])
-        token_count_in_spam = str(spam_token_count_dict[token])
-        toekn_prob_in_spam = str(spam_token_prob_dict[token])
+        if token in ham_token_count_dict:
+            token_count_in_ham = str(ham_token_count_dict[token])
+            toekn_prob_in_ham = str(ham_token_prob_dict[token])
+        else:
+            token_count_in_ham = str(0)
+            toekn_prob_in_ham = str(0)
+        if token in spam_token_count_dict:
+            token_count_in_spam = str(spam_token_count_dict[token])
+            toekn_prob_in_spam = str(spam_token_prob_dict[token])
+        else:
+            token_count_in_spam = str(0)
+            toekn_prob_in_spam = str(0)
         line = str(line_counter) + "  " + str(token) + "  " + token_count_in_ham + "  " + \
             toekn_prob_in_ham + "  " + token_count_in_spam + "  " + toekn_prob_in_spam + "\r"
-        f.writelines(line)
+        f.write(line)
         line_counter = line_counter + 1
     f.close()
 
@@ -76,4 +84,5 @@ for file in file_names:
         spam_count = spam_count + 1
         training_with_one_email(file, spam_tokens_count,
                                 spam_token_count_dict, spam_token_prob_dict)
+calculate_probabilities()
 generate_model_file(generate_model_file)
