@@ -14,7 +14,7 @@ spam_tokens_count = 0  # total tokens counnt in spam
 spam_token_count_dict = {}  # each token with its count in spam
 spam_token_prob_dict = {}  # each token with its probability in spam
 
-training_set_directory = "train/"
+training_set_directory = "simple-train-set-for-develop/"
 test_set_directory = "test/"
 generated_model_file = "model.txt"
 
@@ -33,30 +33,36 @@ def read_file_names_in_directory():
 
 def training_with_one_email(file_path, tokens_count, token_count_dict, token_prob_dict):
     global all_tokens
-    f = open("file_path", "r")
+    f = open(training_set_directory + "train-ham-00001.txt",
+             "r", encoding="iso8859_2")
     lines = f.read().splitlines()
+    # print(lines)
     for line in lines:
-        token_list = re.split("^([a-zA-Z]+)$", line.lower)
+        # print(line)
+        token_list = re.split("[^a-zA-Z]", line)
         tokens_count = len(token_list) + tokens_count
+        # print(token_list)
         for token in token_list:
-            if token in token_list:
+            if not token:
+                token = str(token).lower()
+            if token in token_count_dict:
                 token_count_dict[token] = token_count_dict[token] + 1
             else:
                 token_count_dict[token] = 1
             if token not in all_tokens:
-                all_tokens = all_tokens.append(token)
+                all_tokens.append(token)
 
 # smooth with 0.5 - assume each token will at least show 0.5 time
 
 
 def calculate_probabilities():
     global ham_token_count_dict, spam_token_count_dict
-    for token, count in ham_token_count_dict:
+    for token, count in ham_token_count_dict.items():
         ham_token_prob_dict[token] = (
-            count + 0.5) / (ham_tokens_count + 0.5 * len(ham_token_count_dict.keys))
-    for token, count in spam_token_count_dict:
+            count + 0.5) / (ham_tokens_count + 0.5 * len(ham_token_count_dict.keys()))
+    for token, count in spam_token_count_dict.items():
         spam_token_prob_dict[token] = (
-            count + 0.5) / (spam_tokens_count + 0.5 * len(spam_token_count_dict.keys))
+            count + 0.5) / (spam_tokens_count + 0.5 * len(spam_token_count_dict.keys()))
 
 
 def generate_model_file(file_name):
@@ -86,13 +92,15 @@ def generate_model_file(file_name):
 # script starts from here
 file_names = read_file_names_in_directory()
 for file in file_names:
-    if str(file).startswith("training-ham"):
+    if str(file).startswith("train-ham"):
+        print(file + "I am a ham")
         ham_count = ham_count + 1
         training_with_one_email(file, ham_tokens_count,
                                 ham_token_count_dict, ham_token_prob_dict)
     else:
+        print(file + "I am a spam")
         spam_count = spam_count + 1
         training_with_one_email(file, spam_tokens_count,
                                 spam_token_count_dict, spam_token_prob_dict)
 calculate_probabilities()
-generate_model_file(generate_model_file)
+generate_model_file(generated_model_file)
