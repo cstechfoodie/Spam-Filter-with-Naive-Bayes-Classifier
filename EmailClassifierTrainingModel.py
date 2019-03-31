@@ -56,12 +56,20 @@ def training_with_one_email(file_path, tokens_count, token_count_dict, token_pro
 
 def calculate_probabilities():
     global ham_token_count_dict, spam_token_count_dict
-    for token, count in ham_token_count_dict.items():
-        ham_token_prob_dict[token] = (
-            count + 0.5) / (ham_tokens_count + 0.5 * len(ham_token_count_dict.keys()))
-    for token, count in spam_token_count_dict.items():
-        spam_token_prob_dict[token] = (
-            count + 0.5) / (spam_tokens_count + 0.5 * len(spam_token_count_dict.keys()))
+    vocabulary_len = len(all_tokens)
+    for token in all_tokens:
+        if token in ham_token_count_dict.keys():
+            ham_token_prob_dict[token] = (
+                ham_token_count_dict[token] + 0.5) / (ham_tokens_count + 0.5 * vocabulary_len)
+        else:
+            ham_token_prob_dict[token] = 0.5 / \
+                (ham_tokens_count + 0.5 * vocabulary_len)
+        if token in spam_token_count_dict.keys():
+            spam_token_prob_dict[token] = (
+                spam_token_count_dict[token] + 0.5) / (spam_tokens_count + 0.5 * vocabulary_len)
+        else:
+            spam_token_prob_dict[token] = 0.5 / \
+                (spam_tokens_count + 0.5 * vocabulary_len)
 
 
 def generate_model_file(file_name):
@@ -71,16 +79,14 @@ def generate_model_file(file_name):
     for token in sorted(all_tokens):
         if token in ham_token_count_dict:
             token_count_in_ham = str(ham_token_count_dict[token])
-            toekn_prob_in_ham = str(ham_token_prob_dict[token])
         else:
             token_count_in_ham = str(0)
-            toekn_prob_in_ham = str(0)
         if token in spam_token_count_dict:
             token_count_in_spam = str(spam_token_count_dict[token])
-            toekn_prob_in_spam = str(spam_token_prob_dict[token])
         else:
             token_count_in_spam = str(0)
-            toekn_prob_in_spam = str(0)
+        toekn_prob_in_ham = str(ham_token_prob_dict[token])
+        toekn_prob_in_spam = str(spam_token_prob_dict[token])
         line = str(line_counter) + "  " + str(token) + "  " + token_count_in_ham + "  " + \
             toekn_prob_in_ham + "  " + token_count_in_spam + "  " + toekn_prob_in_spam + "\r"
         f.write(line)
