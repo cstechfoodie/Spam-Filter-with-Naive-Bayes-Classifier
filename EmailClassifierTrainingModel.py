@@ -4,6 +4,8 @@ import re
 file_names = []  # training file names read from the give directory
 ham_count = 0  # number of ham email
 spam_count = 0  # number of spam email
+prior_ham = 0
+prior_spam = 0
 
 # all tokens we found in both ham and spam emails. its length is NOT the total of (ham_tokens_count + spam_token_count_dict).
 all_tokens = []
@@ -18,6 +20,9 @@ training_set_directory = "train/"
 # training_set_directory = "simple-train-set-for-develop/"
 test_set_directory = "test/"
 generated_model_file = "model.txt"
+baseline_result = "baseline-result.txt"  # Experiment 1
+stopword_result = "stopword-result.txt"  # Experiment 2
+wordlength_result = "wordlength_result.txt"  # Experiment 3
 
 '''
 Read all file names given the directory name, we need their names to identify whether it is a ham or spam
@@ -25,9 +30,8 @@ Here is where we save all traing files
 '''
 
 
-def read_file_names_in_directory():
-    training_set_directory
-    return os.listdir(training_set_directory)
+def read_file_names_in_directory(data_set_directory):
+    return os.listdir(data_set_directory)
 
 # training with a single file. need to save all info to their persistences
 
@@ -93,16 +97,14 @@ def generate_model_file(file_name):
 
         line = '%d  %s  %d %.7f  %d  %.7f\n' % (
             line_counter, token, token_count_in_ham, toekn_prob_in_ham, token_count_in_spam, toekn_prob_in_spam)
-        # line = str(line_counter) + "  " + str(token) + "  " + token_count_in_ham + "  " + \
-        #     toekn_prob_in_ham + "  " + token_count_in_spam + "  " + toekn_prob_in_spam + "\r"
         f.write(line)
         line_counter = line_counter + 1
     f.close()
 
 
 # script starts from here
-file_names = read_file_names_in_directory()
-for file in file_names:
+file_names_for_training = read_file_names_in_directory(training_set_directory)
+for file in file_names_for_training:
     if str(file).startswith("train-ham"):
         print("Currently Training with file: " + file)
         ham_count = ham_count + 1
@@ -115,3 +117,6 @@ for file in file_names:
                                 spam_token_count_dict, spam_token_prob_dict)
 calculate_probabilities()
 generate_model_file(generated_model_file)
+
+prior_ham = ham_count / (ham_count + spam_count)
+prior_spam = spam_count / (ham_count + spam_count)
