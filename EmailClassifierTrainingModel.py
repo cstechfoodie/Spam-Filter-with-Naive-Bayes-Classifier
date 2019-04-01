@@ -7,10 +7,10 @@ spam_count = 0  # number of spam email
 
 # all tokens we found in both ham and spam emails. its length is NOT the total of (ham_tokens_count + spam_token_count_dict).
 all_tokens = []
-ham_tokens_count = 0  # total tokens count in ham
+ham_tokens_count = [0]  # total tokens count in ham
 ham_token_count_dict = {}  # each token with its count in ham
 ham_token_prob_dict = {}  # each token with its probability in ham
-spam_tokens_count = 0  # total tokens counnt in spam
+spam_tokens_count = [0]  # total tokens counnt in spam
 spam_token_count_dict = {}  # each token with its count in spam
 spam_token_prob_dict = {}  # each token with its probability in spam
 
@@ -39,10 +39,11 @@ def training_with_one_email(file_path, tokens_count, token_count_dict, token_pro
     lines = f.read().splitlines()
     for line in lines:
         token_list = re.split("[^a-zA-Z]", line)
-        tokens_count = len(token_list) + tokens_count
         for token in token_list:
             if token.strip():
                 token = str(token).lower()
+                tokens_count[0] = tokens_count[0] + 1
+                print(tokens_count[0])
             else:
                 continue
             if token in token_count_dict:
@@ -62,16 +63,16 @@ def calculate_probabilities():
     for token in all_tokens:
         if token in ham_token_count_dict.keys():
             ham_token_prob_dict[token] = (
-                ham_token_count_dict[token] + smooth_constant) / (ham_tokens_count + smooth_constant * vocabulary_len)
+                ham_token_count_dict[token] + smooth_constant) / (ham_tokens_count[0] + smooth_constant * vocabulary_len)
         else:
             ham_token_prob_dict[token] = smooth_constant / \
-                (ham_tokens_count + smooth_constant * vocabulary_len)
+                (ham_tokens_count[0] + smooth_constant * vocabulary_len)
         if token in spam_token_count_dict.keys():
             spam_token_prob_dict[token] = (
-                spam_token_count_dict[token] + smooth_constant) / (spam_tokens_count + smooth_constant * vocabulary_len)
+                spam_token_count_dict[token] + smooth_constant) / (spam_tokens_count[0] + smooth_constant * vocabulary_len)
         else:
             spam_token_prob_dict[token] = smooth_constant / \
-                (spam_tokens_count + smooth_constant * vocabulary_len)
+                (spam_tokens_count[0] + smooth_constant * vocabulary_len)
 
 
 def generate_model_file(file_name):
