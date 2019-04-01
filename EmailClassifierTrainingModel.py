@@ -14,7 +14,8 @@ spam_tokens_count = 0  # total tokens counnt in spam
 spam_token_count_dict = {}  # each token with its count in spam
 spam_token_prob_dict = {}  # each token with its probability in spam
 
-training_set_directory = "simple-train-set-for-develop/"
+training_set_directory = "train/"
+# training_set_directory = "simple-train-set-for-develop/"
 test_set_directory = "test/"
 generated_model_file = "model.txt"
 
@@ -56,20 +57,21 @@ def training_with_one_email(file_path, tokens_count, token_count_dict, token_pro
 
 def calculate_probabilities():
     global ham_token_count_dict, spam_token_count_dict
+    smooth_constant = 0.5
     vocabulary_len = len(all_tokens)
     for token in all_tokens:
         if token in ham_token_count_dict.keys():
             ham_token_prob_dict[token] = (
-                ham_token_count_dict[token] + 0.5) / (ham_tokens_count + 0.5 * vocabulary_len)
+                ham_token_count_dict[token] + smooth_constant) / (ham_tokens_count + smooth_constant * vocabulary_len)
         else:
-            ham_token_prob_dict[token] = 0.5 / \
-                (ham_tokens_count + 0.5 * vocabulary_len)
+            ham_token_prob_dict[token] = smooth_constant / \
+                (ham_tokens_count + smooth_constant * vocabulary_len)
         if token in spam_token_count_dict.keys():
             spam_token_prob_dict[token] = (
-                spam_token_count_dict[token] + 0.5) / (spam_tokens_count + 0.5 * vocabulary_len)
+                spam_token_count_dict[token] + smooth_constant) / (spam_tokens_count + smooth_constant * vocabulary_len)
         else:
-            spam_token_prob_dict[token] = 0.5 / \
-                (spam_tokens_count + 0.5 * vocabulary_len)
+            spam_token_prob_dict[token] = smooth_constant / \
+                (spam_tokens_count + smooth_constant * vocabulary_len)
 
 
 def generate_model_file(file_name):
@@ -78,17 +80,20 @@ def generate_model_file(file_name):
     line_counter = 1
     for token in sorted(all_tokens):
         if token in ham_token_count_dict:
-            token_count_in_ham = str(ham_token_count_dict[token])
+            token_count_in_ham = int(ham_token_count_dict[token])
         else:
-            token_count_in_ham = str(0)
+            token_count_in_ham = int(0)
         if token in spam_token_count_dict:
-            token_count_in_spam = str(spam_token_count_dict[token])
+            token_count_in_spam = int(spam_token_count_dict[token])
         else:
-            token_count_in_spam = str(0)
-        toekn_prob_in_ham = str(ham_token_prob_dict[token])
-        toekn_prob_in_spam = str(spam_token_prob_dict[token])
-        line = str(line_counter) + "  " + str(token) + "  " + token_count_in_ham + "  " + \
-            toekn_prob_in_ham + "  " + token_count_in_spam + "  " + toekn_prob_in_spam + "\r"
+            token_count_in_spam = int(0)
+        toekn_prob_in_ham = float(ham_token_prob_dict[token])
+        toekn_prob_in_spam = float(spam_token_prob_dict[token])
+
+        line = '%d  %s  %d %.7f  %d  %.7f\n' % (
+            line_counter, token, token_count_in_ham, toekn_prob_in_ham, token_count_in_spam, toekn_prob_in_spam)
+        # line = str(line_counter) + "  " + str(token) + "  " + token_count_in_ham + "  " + \
+        #     toekn_prob_in_ham + "  " + token_count_in_spam + "  " + toekn_prob_in_spam + "\r"
         f.write(line)
         line_counter = line_counter + 1
     f.close()
