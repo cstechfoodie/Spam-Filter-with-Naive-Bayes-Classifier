@@ -22,11 +22,21 @@ ham_email_prob = 0
 spam_email_prob = 0
 ham_score_dic = {}
 spam_score_dic = {}
+stop_word_list = []
 
 training_set_directory = "simple-train-set-for-develop/"
 test_set_directory = "test/"
 generated_model_file = "model.txt"
+stop_words_file = "stop-words.txt"
+baseline_result_file = "baseline-result.txt"
+stop_word_model_file = "stopword-model.txt"  # experiment 2
+stop_word_result_file = "stopword-result.txt"  # experiment 2
+word_length_model_file = "wordlength-model.txt" # experiment 3
+word_length_result_file = "wordlength-result.txt" # experiment 3
 
+
+filter_stop_words = lambda x: x not in stop_word_list
+filter_word_length = lambda x: len(x) > 2 and len(x) < 9
 
 '''
 Read all file names given the directory name, we need their names to identify whether it is a ham or spam
@@ -41,6 +51,14 @@ def read_file_names_in_directory():
 # training with a single file. need to save all info to their persistences
 
 
+def generate_stop_word_list(file_path):
+    global stop_word_list
+    f = open(file_path, "r", encoding="iso8859_2")
+    lines = f.read().splitlines()
+    for line in lines:
+        stop_word_list.append(line)
+
+
 def training_with_one_email(file_path, tokens_count, token_count_dict, token_prob_dict):
     global all_tokens
     f = open(training_set_directory + file_path,
@@ -48,6 +66,8 @@ def training_with_one_email(file_path, tokens_count, token_count_dict, token_pro
     lines = f.read().splitlines()
     for line in lines:
         token_list = re.split("[^a-zA-Z]", line)
+        token_list = list(filter(filter_stop_words, token_list))
+        # token_list = list(filter(filter_word_length, token_list))
         tokens_count = len(token_list) + tokens_count
         for token in token_list:
             if token.strip():
@@ -133,6 +153,8 @@ def calculate_ham_score(file_path):
     lines = f.read().splitlines()
     for line in lines:
         token_list = re.split("[^a-zA-Z]", line)
+        token_list = list(filter(filter_stop_words, token_list))
+        # token_list = list(filter(filter_word_length, token_list))
         for token in token_list:
             if token.strip():
                 token = str(token).lower()
@@ -144,13 +166,14 @@ def calculate_ham_score(file_path):
 
 
 def calculate_spam_score(file_path):
-    global spam_email_prob
-    global spam_score_dic
+    global spam_email_prob, spam_score_dic
     score = math.log(spam_email_prob, 10)
     f = open(test_set_directory + file_path, "r", encoding="iso8859_2")
     lines = f.read().splitlines()
     for line in lines:
         token_list = re.split("[^a-zA-Z]", line)
+        token_list = list(filter(filter_stop_words, token_list))
+        # token_list = list(filter(filter_word_length, token_list))
         for token in token_list:
             if token.strip():
                 token = str(token).lower()
@@ -162,6 +185,9 @@ def calculate_spam_score(file_path):
 
 
 # script starts from here
+generate_stop_word_list(stop_words_file)
+print(stop_word_list)
+
 file_names = read_file_names_in_directory()
 for file in file_names:
     if str(file).startswith("train-ham"):
@@ -177,14 +203,18 @@ for file in file_names:
 
 
 calculate_probabilities()
+
 # generate_model_file(generated_model_file)
+generate_model_file(stop_word_model_file)
+# generate_model_file(word_length_model_file)
 
 count_test_category_prob()
 
 
-def generate_test_file():
+
+def generate_test_file(file_path):
     test_file_names = read_files_in_directory(test_set_directory)
-    f = open("baseline-result.txt", "w")
+    f = open(file_path, "w")
     line_counter = 1
     for file in sorted(test_file_names):
         if str(file).startswith("test-ham"):
@@ -209,9 +239,14 @@ def generate_test_file():
     f.close()
 
 
-generate_test_file()
+#generate_test_file(baseline_result_file)
+generate_test_file(stop_word_result_file)
+# generate_test_file(word_length_result_file)
+
+print(stop_word_list)
 
 
-
-
-
+# test_list_fliter = ["a", "was", "sdfsdf","testtest", "aren't", "onemoregjhgjhgjhgjhghjg", "hh"]
+# test_list_fliter_result = list(filter(filter_stop_words, test_list_fliter))
+# test_list_fliter_result = list(filter(filter_word_length, test_list_fliter))
+# print(test_list_fliter_result)
