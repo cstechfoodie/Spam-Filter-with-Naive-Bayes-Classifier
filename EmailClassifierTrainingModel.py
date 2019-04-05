@@ -66,14 +66,15 @@ def training_with_one_email(file_path, tokens_count, token_count_dict, token_pro
     lines = f.read().splitlines()
     for line in lines:
         token_list = re.split("[^a-zA-Z]", line)
+        token_list = map(lambda x: x.lower(), token_list)
         token_list = list(filter(filter_stop_words, token_list))
         # token_list = list(filter(filter_word_length, token_list))
         tokens_count = len(token_list) + tokens_count
         for token in token_list:
-            if token.strip():
-                token = str(token).lower()
-            else:
-                continue
+            # if token.strip():
+            #     token = str(token).lower()
+            # else:
+            #     continue
             if token in token_count_dict:
                 token_count_dict[token] = token_count_dict[token] + 1
             else:
