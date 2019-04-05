@@ -22,10 +22,23 @@ ham_email_prob = 0
 spam_email_prob = 0
 ham_score_dic = {}
 spam_score_dic = {}
+stop_word_list = []
 
 training_set_directory = "train/"
 test_set_directory = "test/"
 generated_model_file = "model.txt"
+stop_words_file = "stop-words.txt"
+baseline_result_file = "baseline-result.txt"
+stop_word_model_file = "stopword-model.txt"  # experiment 2
+stop_word_result_file = "stopword-result.txt"  # experiment 2
+word_length_model_file = "wordlength-model.txt"  # experiment 3
+word_length_result_file = "wordlength-result.txt"  # experiment 3
+
+
+def filter_stop_words(x): return x not in stop_word_list
+
+
+def filter_word_length(x): return len(x) > 2 and len(x) < 9
 
 
 '''
@@ -138,6 +151,8 @@ def calculate_ham_score(file_path):
     lines = f.read().splitlines()
     for line in lines:
         token_list = re.split("[^a-zA-Z]", line)
+        token_list = list(filter(filter_stop_words, token_list))
+        # token_list = list(filter(filter_word_length, token_list))
         for token in token_list:
             if token.strip():
                 token = str(token).lower()
@@ -149,12 +164,14 @@ def calculate_ham_score(file_path):
 
 
 def calculate_spam_score(file_path):
-    global spam_email_prob
+    global spam_email_prob, spam_score_dic
     score = math.log(spam_email_prob, 10)
     f = open(test_set_directory + file_path, "r", encoding="iso8859_2")
     lines = f.read().splitlines()
     for line in lines:
         token_list = re.split("[^a-zA-Z]", line)
+        token_list = list(filter(filter_stop_words, token_list))
+        # token_list = list(filter(filter_word_length, token_list))
         for token in token_list:
             if token.strip():
                 token = str(token).lower()
@@ -181,6 +198,9 @@ for file in file_names_for_training:
 calculate_probabilities()
 generate_model_file(generated_model_file)
 
+generate_model_file(stop_word_model_file)
+# generate_model_file(word_length_model_file)
+
 count_test_category_prob()
 
 actual_ham_count = 0
@@ -196,10 +216,10 @@ right_result_count = 0
 wrong_result_count = 0
 
 
-def generate_test_file():
+def generate_test_file(file_path):
     global right_result_count, wrong_result_count, actual_ham_count, actual_spam_count, test_result_ham_count, test_result_spam_count, ham_accuracy_count, spam_accuracy_count
     test_file_names = read_files_in_directory(test_set_directory)
-    f = open("baseline-result.txt", "w")
+    f = open(file_path, "w")
     line_counter = 1
     for file in sorted(test_file_names):
         if str(file).startswith("test-ham"):
@@ -234,7 +254,7 @@ def generate_test_file():
     f.close()
 
 
-generate_test_file()
+generate_test_file(baseline_result_file)
 
 
 def generate_report_file():
