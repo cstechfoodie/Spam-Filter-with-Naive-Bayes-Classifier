@@ -1,14 +1,12 @@
 import os
 import re
 import math
+import datetime
 
 file_names = []  # training file names read from the give directory
 ham_count = 0  # number of ham email
 spam_count = 0  # number of spam email
-
 test_file_names = []
-
-
 # all tokens we found in both ham and spam emails. its length is NOT the total of (ham_tokens_count + spam_token_count_dict).
 all_tokens = []
 ham_tokens_count = [0]  # total tokens count in ham
@@ -34,14 +32,26 @@ stop_word_result_file = "stopword-result.txt"  # experiment 2
 word_length_model_file = "wordlength-model.txt"  # experiment 3
 word_length_result_file = "wordlength-result.txt"  # experiment 3
 
-model_files = [baseline_model_file,
-               stop_word_model_file, word_length_result_file]
+# model_files = [baseline_model_file,
+#                stop_word_model_file, word_length_model_file]
+# result_files = [baseline_result_file,
+#                 stop_word_result_file, word_length_result_file]
+
+# model_files = [baseline_model_file]
+# result_files = [baseline_model_file]
+
+model_files = [stop_word_model_file]
+result_files = [stop_word_result_file]
+
+# model_files = [word_length_result_file]
+# result_files = [word_length_result_file]
 
 
 def filter_stop_words(x): return x not in stop_word_list
 
 
 def filter_word_length(x): return len(x) > 2 and len(x) < 9
+
 
 '''
 Read all file names given the directory name, we need their names to identify whether it is a ham or spam
@@ -64,8 +74,12 @@ def training_with_one_email(file_path, tokens_count, token_count_dict,
     for line in lines:
         token_list = re.split("[^a-zA-Z]", line)
         if filter_strategy == "stopword":
+            # len1 = len(token_list)
             token_list = list(filter(filter_stop_words, token_list))
-        if filter_strategy == "length":
+            # print(stop_word_list)
+            # len2 = len(token_list)
+            # print(str(len1-len2))
+        if filter_strategy == "wordlength":
             token_list = list(filter(filter_word_length, token_list))
         for token in token_list:
             if token.strip():
@@ -160,7 +174,7 @@ def calculate_ham_score(file_path):
                 token = str(token).lower()
             else:
                 continue
-            if token in ham_token_prob_dict.keys():
+            if token in ham_token_prob_dict:
                 score = score + math.log10(ham_token_prob_dict[token])
     return score
 
@@ -179,7 +193,7 @@ def calculate_spam_score(file_path):
                 token = str(token).lower()
             else:
                 continue
-            if token in spam_token_prob_dict.keys():
+            if token in spam_token_prob_dict:
                 score = score + math.log10(spam_token_prob_dict[token])
     return score
 
@@ -246,8 +260,8 @@ def generate_test_file(file_path):
     f.close()
 
 
-def generate_report_file():
-    report_file = "report.txt"
+def generate_report_file(filter_strategy):
+    report_file = filter_strategy + "-report.txt"
     accuracy = right_result_count / (right_result_count + wrong_result_count)
 
     spam_precision = spam_accuracy_count / test_result_spam_count
@@ -257,38 +271,79 @@ def generate_report_file():
     ham_recall = ham_accuracy_count / actual_spam_count
 
     f = open(report_file, "w")
+    f.write("Experiement with " + filter_strategy +
+            " on " + str(datetime.datetime.now()) + "\r")
     f.write("--------------------------------------------------------------------------------------------\r")
     f.write("accracy: " + str(accuracy) + "\r")
-    f.write("spam precision: " + str(spam_precision) + "\r")
+    f.write("spam_precision: " + str(spam_precision) + "\r")
     f.write("spam_recall: " + str(spam_recall) + "\r")
-    f.write("ham precision: " + str(ham_precision) + "\r")
+    f.write("ham_precision: " + str(ham_precision) + "\r")
+    f.write("ham_recall: " + str(ham_recall) + "\r")
+    f.write("--------------------------------------------------------------------------------------------\r")
+    f.close()
+
+    f = open("comprehensive-report.txt", "a")
+    f.write("Experiement with " + filter_strategy +
+            " on " + str(datetime.datetime.now()) + "\r")
+    f.write("--------------------------------------------------------------------------------------------\r")
+    f.write("accracy: " + str(accuracy) + "\r")
+    f.write("spam_precision: " + str(spam_precision) + "\r")
+    f.write("spam_recall: " + str(spam_recall) + "\r")
+    f.write("ham_precision: " + str(ham_precision) + "\r")
     f.write("ham_recall: " + str(ham_recall) + "\r")
     f.write("--------------------------------------------------------------------------------------------\r")
     f.close()
 
 
-# script starts from here
-file_names_for_training = read_file_names_in_directory(training_set_directory)
-for file in file_names_for_training:
-    if str(file).startswith("train-ham"):
-        print("Currently Training with file: " + file)
-        ham_count = ham_count + 1
-        training_with_one_email(file, ham_tokens_count, ham_token_count_dict,
-                                ham_token_prob_dict, "baseline")
-    else:
-        print("Currently Training with file: " + file)
-        spam_count = spam_count + 1
-        training_with_one_email(file, spam_tokens_count, spam_token_count_dict,
-                                spam_token_prob_dict, "baseline")
-calculate_probabilities()
+def read_stop_word_from_file(file_name):
+    f = open(file_name, "r", encoding="iso8859_2")
+    lines = f.read().splitlines()
+    f.close()
+    return lines
 
-generate_model_file(baseline_model_file)
 
-calculate_priors()
+index = 0
+stop_word_list = read_stop_word_from_file(stop_words_file)
+length = len(model_files)
+print(model_files)
+while(index < length):
+    filter_strategy = model_files[index].split("-")[0]
+    file_names_for_training = read_file_names_in_directory(
+        training_set_directory)
+    for file in file_names_for_training:
+        if str(file).startswith("train-ham"):
+            print("Currently Training with file: " + file +
+                  " -- strategy key [" + filter_strategy + "]")
+            ham_count = ham_count + 1
+            training_with_one_email(file, ham_tokens_count, ham_token_count_dict,
+                                    ham_token_prob_dict, filter_strategy)
+        else:
+            print("Currently Training with file: " + file +
+                  " -- strategy key [" + filter_strategy + "]")
+            spam_count = spam_count + 1
+            training_with_one_email(file, spam_tokens_count, spam_token_count_dict,
+                                    spam_token_prob_dict, filter_strategy)
+    calculate_probabilities()
+    generate_model_file(model_files[index])
+    calculate_priors()
+    generate_test_file(result_files[index])
+    generate_report_file(filter_strategy)
+    index += 1
 
-generate_test_file(baseline_result_file)
+    file_names = []  # training file names read from the give directory
+    ham_count = 0  # number of ham email
+    spam_count = 0  # number of spam email
+    test_file_names = []
+    # all tokens we found in both ham and spam emails. its length is NOT the total of (ham_tokens_count + spam_token_count_dict).
+    all_tokens = []
+    ham_tokens_count = [0]  # total tokens count in ham
+    ham_token_count_dict = {}  # each token with its count in ham
+    ham_token_prob_dict = {}  # each token with its probability in ham
+    spam_tokens_count = [0]  # total tokens counnt in spam
+    spam_token_count_dict = {}  # each token with its count in spam
+    spam_token_prob_dict = {}  # each token with its probability in spam
 
-generate_report_file()
-
-# generate_model_file(stop_word_model_file, "stopword")
-# generate_model_file(word_length_model_file, "length")
+    ham_email_prob = 0
+    spam_email_prob = 0
+    ham_score_dic = {}
+    spam_score_dic = {}
