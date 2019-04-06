@@ -52,7 +52,6 @@ def filter_stop_words(x): return x not in stop_word_list
 
 def filter_word_length(x): return len(x) > 2 and len(x) < 9
 
-
 '''
 Read all file names given the directory name, we need their names to identify whether it is a ham or spam
 Here is where we save all traing files
@@ -84,7 +83,10 @@ def training_with_one_email(file_path, tokens_count, token_count_dict,
         for token in token_list:
             if token.strip():
                 token = str(token).lower()
-                tokens_count[0] = tokens_count[0] + 1
+                if filter_strategy == "stopword" and not filter_stop_words(token):
+                    continue
+                else:
+                    tokens_count[0] = tokens_count[0] + 1
             else:
                 continue
             if token in token_count_dict:
@@ -283,6 +285,7 @@ def generate_report_file(filter_strategy):
     f.close()
 
     f = open("comprehensive-report.txt", "a")
+    f.write("\r")
     f.write("Experiement with " + filter_strategy +
             " on " + str(datetime.datetime.now()) + "\r")
     f.write("--------------------------------------------------------------------------------------------\r")
@@ -304,6 +307,7 @@ def read_stop_word_from_file(file_name):
 
 index = 0
 stop_word_list = read_stop_word_from_file(stop_words_file)
+print(stop_word_list)
 length = len(model_files)
 print(model_files)
 while(index < length):
