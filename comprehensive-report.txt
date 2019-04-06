@@ -1,33 +1,56 @@
-Experiement with baseline on 2019-04-05 02:12:36.820020
+Experiement with baseline on 2019-04-06 00:42:06.680715
 --------------------------------------------------------------------------------------------
+Model says instance is SPAM, In reality it is SPAM: 336
+Model says instance is SPAM, In reality it is HAM: 6
+Model says instance is SPAM, In total: 342
+Model says instance is HAM, In reality it is SPAM: 64
+Model says instance is HAM, In reality it is HAM: 394
+Model says instance is HAM, In total: 458
+Actual SPAM numbers: 400
+Actual HAM numbers: 400
 accracy: 0.9125
 spam_precision: 0.9824561403508771
 spam_recall: 0.84
+f_spam: 0.9056603773584906
 ham_precision: 0.8602620087336245
 ham_recall: 0.985
---------------------------------------------------------------------------------------------
-Experiement with stopword on 2019-04-05 02:19:31.760095
---------------------------------------------------------------------------------------------
-accracy: 0.9275
-spam_precision: 0.9776536312849162
-spam_recall: 0.875
-ham_precision: 0.8868778280542986
-ham_recall: 0.98
---------------------------------------------------------------------------------------------
-Experiement with wordlength on 2019-04-05 02:15:46.981174
---------------------------------------------------------------------------------------------
-accracy: 0.92
-spam_precision: 0.98
-spam_recall: 0.8575
-ham_precision: 0.8733333333333333
-ham_recall: 0.9825
+f_ham: 0.9184149184149185
 --------------------------------------------------------------------------------------------
 
-Experiement with stopword on 2019-04-05 20:23:43.194573
+Experiement with stopword on 2019-04-06 00:44:30.440668
 --------------------------------------------------------------------------------------------
+Model says instance is SPAM, In reality it is SPAM: 337
+Model says instance is SPAM, In reality it is HAM: 6
+Model says instance is SPAM, In total: 343
+Model says instance is HAM, In reality it is SPAM: 63
+Model says instance is HAM, In reality it is HAM: 394
+Model says instance is HAM, In total: 457
+Actual SPAM numbers: 400
+Actual HAM numbers: 400
 accracy: 0.91375
 spam_precision: 0.9825072886297376
 spam_recall: 0.8425
+f_spam: 0.9071332436069985
 ham_precision: 0.862144420131291
 ham_recall: 0.985
+f_ham: 0.9194865810968494
+--------------------------------------------------------------------------------------------
+
+Experiement with wordlength on 2019-04-06 00:45:41.626695
+--------------------------------------------------------------------------------------------
+Model says instance is SPAM, In reality it is SPAM: 343
+Model says instance is SPAM, In reality it is HAM: 7
+Model says instance is SPAM, In total: 350
+Model says instance is HAM, In reality it is SPAM: 57
+Model says instance is HAM, In reality it is HAM: 393
+Model says instance is HAM, In total: 450
+Actual SPAM numbers: 400
+Actual HAM numbers: 400
+accracy: 0.92
+spam_precision: 0.98
+spam_recall: 0.8575
+f_spam: 0.9146666666666667
+ham_precision: 0.8733333333333333
+ham_recall: 0.9825
+f_ham: 0.924705882352941
 --------------------------------------------------------------------------------------------

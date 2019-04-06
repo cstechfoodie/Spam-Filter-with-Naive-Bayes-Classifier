@@ -32,16 +32,16 @@ stop_word_result_file = "stopword-result.txt"  # experiment 2
 word_length_model_file = "wordlength-model.txt"  # experiment 3
 word_length_result_file = "wordlength-result.txt"  # experiment 3
 
-# model_files = [baseline_model_file,
-#                stop_word_model_file, word_length_model_file]
-# result_files = [baseline_result_file,
-#                 stop_word_result_file, word_length_result_file]
+model_files = [baseline_model_file,
+               stop_word_model_file, word_length_model_file]
+result_files = [baseline_result_file,
+                stop_word_result_file, word_length_result_file]
 
 # model_files = [baseline_model_file]
 # result_files = [baseline_model_file]
 
-model_files = [stop_word_model_file]
-result_files = [stop_word_result_file]
+# model_files = [stop_word_model_file]
+# result_files = [stop_word_result_file]
 
 # model_files = [word_length_result_file]
 # result_files = [word_length_result_file]
@@ -263,6 +263,7 @@ def generate_test_file(file_path):
 
 
 def generate_report_file(filter_strategy):
+    b = 1
     report_file = filter_strategy + "-report.txt"
     accuracy = right_result_count / (right_result_count + wrong_result_count)
 
@@ -272,15 +273,40 @@ def generate_report_file(filter_strategy):
     spam_recall = spam_accuracy_count / actual_spam_count
     ham_recall = ham_accuracy_count / actual_spam_count
 
+    f_spam = ((b * b + 1) * spam_precision * spam_recall) / \
+        (b * b * spam_precision + spam_recall)
+
+    f_ham = ((b * b + 1) * ham_precision * ham_recall) / \
+        (b * b * ham_precision + ham_recall)
+
     f = open(report_file, "w")
     f.write("Experiement with " + filter_strategy +
             " on " + str(datetime.datetime.now()) + "\r")
     f.write("--------------------------------------------------------------------------------------------\r")
+    f.write("Model says instance is SPAM, In reality it is SPAM: " +
+            str(spam_accuracy_count) + "\r")
+    f.write("Model says instance is SPAM, In reality it is HAM: " +
+            str(test_result_spam_count - spam_accuracy_count) + "\r")
+    f.write("Model says instance is SPAM, In total: " +
+            str(test_result_spam_count) + "\r")
+
+    f.write("Model says instance is HAM, In reality it is SPAM: " +
+            str(test_result_ham_count - ham_accuracy_count) + "\r")
+    f.write("Model says instance is HAM, In reality it is HAM: " +
+            str(ham_accuracy_count) + "\r")
+    f.write("Model says instance is HAM, In total: " +
+            str(test_result_ham_count) + "\r")
+
+    f.write("Actual SPAM numbers: " + str(actual_spam_count) + "\r")
+    f.write("Actual HAM numbers: " + str(actual_ham_count) + "\r")
+
     f.write("accracy: " + str(accuracy) + "\r")
     f.write("spam_precision: " + str(spam_precision) + "\r")
     f.write("spam_recall: " + str(spam_recall) + "\r")
+    f.write("f_spam: " + str(f_spam) + "\r")
     f.write("ham_precision: " + str(ham_precision) + "\r")
     f.write("ham_recall: " + str(ham_recall) + "\r")
+    f.write("f_ham: " + str(f_ham) + "\r")
     f.write("--------------------------------------------------------------------------------------------\r")
     f.close()
 
@@ -289,11 +315,30 @@ def generate_report_file(filter_strategy):
     f.write("Experiement with " + filter_strategy +
             " on " + str(datetime.datetime.now()) + "\r")
     f.write("--------------------------------------------------------------------------------------------\r")
+    f.write("Model says instance is SPAM, In reality it is SPAM: " +
+            str(spam_accuracy_count) + "\r")
+    f.write("Model says instance is SPAM, In reality it is HAM: " +
+            str(test_result_spam_count - spam_accuracy_count) + "\r")
+    f.write("Model says instance is SPAM, In total: " +
+            str(test_result_spam_count) + "\r")
+
+    f.write("Model says instance is HAM, In reality it is SPAM: " +
+            str(test_result_ham_count - ham_accuracy_count) + "\r")
+    f.write("Model says instance is HAM, In reality it is HAM: " +
+            str(ham_accuracy_count) + "\r")
+    f.write("Model says instance is HAM, In total: " +
+            str(test_result_ham_count) + "\r")
+
+    f.write("Actual SPAM numbers: " + str(actual_spam_count) + "\r")
+    f.write("Actual HAM numbers: " + str(actual_ham_count) + "\r")
+
     f.write("accracy: " + str(accuracy) + "\r")
     f.write("spam_precision: " + str(spam_precision) + "\r")
     f.write("spam_recall: " + str(spam_recall) + "\r")
+    f.write("f_spam: " + str(f_spam) + "\r")
     f.write("ham_precision: " + str(ham_precision) + "\r")
     f.write("ham_recall: " + str(ham_recall) + "\r")
+    f.write("f_ham: " + str(f_ham) + "\r")
     f.write("--------------------------------------------------------------------------------------------\r")
     f.close()
 
